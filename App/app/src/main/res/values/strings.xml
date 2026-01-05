@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Sensu</string>
+
+    //Emociones
+    <string name="happy">Alegría</string>
+    <string name="sad">Tristeza</string>
+    <string name="fearful">Miedo</string>
+    <string name="angry">Enojo</string>
+    <string name="surprised">Sorpresa</string>
+    <string name="disgusted">Asco</string>
+
+    //Intensidad
+    <string name="terrible">Terrible</string>
+    <string name="bad">Malo</string>
+    <string name="okay">Regular</string>
+    <string name="good">Bueno</string>
+    <string name="great">Increible</string>
+</resources>
