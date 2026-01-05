@@ -16,7 +16,11 @@ enum class MoodEmotion(
     Fearful("FEARFUL", R.string.fearful, "\uD83D\uDE28", EmotionMiedo),
     Angry("ANGRY", R.string.angry, "\uD83D\uDE21", EmotionEnojo),
     Surprised("SURPRISED", R.string.surprised, "\uD83D\uDE31", EmotionSorpresa),
-    Disgusted("DISGUSTED", R.string.disgusted, "\uD83E\uDD22", EmotionAsco)
+    Disgusted("DISGUSTED", R.string.disgusted, "\uD83E\uDD22", EmotionAsco);
+
+    companion object {
+        fun fromId(id: String): MoodEmotion? = entries.find { it.id == id }
+    }
 }
 
 enum class MoodRating(
@@ -29,5 +33,9 @@ enum class MoodRating(
     Bad(2, R.string.bad, "\uD83E\uDEE4",RatingMal),
     Okay(3, R.string.okay, "\uD83D\uDE10",RatingRegular),
     Good(4, R.string.good, "\uD83D\uDE04",RatingBien),
-    Incredible(5, R.string.great, "\uD83D\uDE0E",RatingIncreible)
+    Incredible(5, R.string.great, "\uD83D\uDE0E",RatingIncreible);
+
+    companion object {
+        fun fromValue(value: Int): MoodRating? = entries.find { it.value == value }
+    }
 }
