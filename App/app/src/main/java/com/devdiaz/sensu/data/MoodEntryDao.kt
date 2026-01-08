@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MoodEntryDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(entry: MoodEntry)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(entry: MoodEntry)
 
     @Update suspend fun update(entry: MoodEntry)
 
@@ -22,4 +22,11 @@ interface MoodEntryDao {
 
     @Query("SELECT * FROM mood_entries WHERE dateString = :date ORDER BY timestamp DESC")
     fun getMoodEntriesByDate(date: String): Flow<List<MoodEntry>>
+
+    @Query(
+            "SELECT * FROM mood_entries WHERE timestamp BETWEEN :start AND :end ORDER BY timestamp DESC"
+    )
+    fun getMoodEntriesInRange(start: Long, end: Long): Flow<List<MoodEntry>>
+
+    @Query("SELECT COUNT(DISTINCT dateString) FROM mood_entries") fun getMoodCount(): Flow<Int>
 }
