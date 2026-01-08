@@ -23,4 +23,10 @@ abstract class RepositoryModule {
     abstract fun bindUserStatsRepository(
             userStatsRepositoryImpl: UserStatsRepositoryImpl
     ): UserStatsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderRepository(
+            reminderRepositoryImpl: com.devdiaz.sensu.repository.ReminderRepositoryImpl
+    ): com.devdiaz.sensu.repository.ReminderRepository
 }

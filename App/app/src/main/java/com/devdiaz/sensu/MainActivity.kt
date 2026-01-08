@@ -31,7 +31,10 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("dashboard") {
                             com.devdiaz.sensu.ui.dashboard.MoodDashboardScreen(
-                                    onNavigateToScan = { navController.navigate("scan") }
+                                    onNavigateToScan = { navController.navigate("scan") },
+                                    onNavigateToReminders = {
+                                        navController.navigate("reminder_settings")
+                                    }
                             )
                         }
 
@@ -59,6 +62,12 @@ class MainActivity : ComponentActivity() {
                                     streakDays = streak,
                                     onContinue = { navController.popBackStack() },
                                     onDismiss = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("reminder_settings") {
+                            com.devdiaz.sensu.ui.settings.ReminderSettingsScreen(
+                                    onBack = { navController.popBackStack() }
                             )
                         }
                     }

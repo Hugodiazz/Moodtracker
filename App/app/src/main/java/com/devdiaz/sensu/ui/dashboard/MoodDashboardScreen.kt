@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -65,6 +66,7 @@ import java.util.Calendar
 @Composable
 fun MoodDashboardScreen(
         onNavigateToScan: () -> Unit,
+        onNavigateToReminders: () -> Unit,
         viewModel: MoodDashboardViewModel = hiltViewModel()
 ) {
         val uiState by viewModel.uiState.collectAsState()
@@ -88,7 +90,8 @@ fun MoodDashboardScreen(
                                 streak = uiState.streak,
                                 isStreakActive = uiState.isStreakActive,
                                 contentColor = contentColor,
-                                isDarkTheme = isDarkTheme
+                                isDarkTheme = isDarkTheme,
+                                onNavigateToReminders = onNavigateToReminders
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -122,6 +125,7 @@ fun MoodDashboardScreen(
 
                         // Emotion Distribution
                         EmotionDistributionCard(
+                                selectedTimeFilter = uiState.selectedTimeFilter,
                                 distribution = uiState.emotionDistribution,
                                 isDarkTheme = isDarkTheme,
                                 contentColor = contentColor
@@ -147,7 +151,8 @@ fun DashboardHeader(
         streak: Int,
         isStreakActive: Boolean,
         contentColor: Color,
-        isDarkTheme: Boolean
+        isDarkTheme: Boolean,
+        onNavigateToReminders: () -> Unit
 ) {
         Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -164,8 +169,30 @@ fun DashboardHeader(
                         )
                 }
 
-                // Streak Badge
-                Surface(
+                // Streak Badge & Notifications
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Notification Bell
+                    Surface(
+                        shape = CircleShape,
+                        color = if (isDarkTheme) SensuCardDark else Color.White,
+                        shadowElevation = 2.dp,
+                        modifier = Modifier.size(40.dp).clickable(onClick = onNavigateToReminders)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Reminders",
+                                tint = if (isDarkTheme) Color.White else Color(0xFF334155),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    // Streak Badge
+                    Surface(
                         shape = RoundedCornerShape(50),
                         color = if (isDarkTheme) SensuCardDark else Color.White,
                         shadowElevation = 4.dp, // soft shadow approximation
@@ -175,7 +202,7 @@ fun DashboardHeader(
                                         if (isDarkTheme) Color.White.copy(alpha = 0.05f)
                                         else Color(0xFFF1F5F9)
                                 )
-                ) {
+                    ) {
                         Row(
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -202,6 +229,7 @@ fun DashboardHeader(
                                                 else Color(0xFF334155)
                                 )
                         }
+                    }
                 }
         }
 }
@@ -1005,6 +1033,7 @@ fun TrendGraphCard(
 
 @Composable
 fun EmotionDistributionCard(
+        selectedTimeFilter: TimeFilter,
         distribution: Map<MoodEmotion, Int>,
         isDarkTheme: Boolean,
         contentColor: Color
@@ -1018,13 +1047,62 @@ fun EmotionDistributionCard(
                 modifier = Modifier.fillMaxWidth()
         ) {
                 Column(modifier = Modifier.padding(24.dp)) {
-                        Text(
-                                text = "Distribución de Emociones",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = contentColor,
-                                modifier = Modifier.padding(bottom = 24.dp)
-                        )
+                        Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                        ) {
+                                Column {
+                                        Text(
+                                                text = "Emociones",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color =
+                                                        if (isDarkTheme) Color.White
+                                                        else Color(0xFF1E293B)
+                                        )
+                                        val calendar = Calendar.getInstance()
+                                        val dateFormat =
+                                                java.text.SimpleDateFormat(
+                                                        "dd MMM",
+                                                        java.util.Locale.getDefault()
+                                                )
+                                        val monthFormat =
+                                                java.text.SimpleDateFormat(
+                                                        "MMMM yyyy",
+                                                        java.util.Locale.getDefault()
+                                                )
+
+                                        val dateText =
+                                                if (selectedTimeFilter == TimeFilter.MONTH) {
+                                                        monthFormat
+                                                                .format(calendar.time)
+                                                                .uppercase()
+                                                } else {
+                                                        val endDate =
+                                                                dateFormat.format(calendar.time)
+                                                        calendar.add(Calendar.DAY_OF_YEAR, -6)
+                                                        val startDate =
+                                                                dateFormat.format(calendar.time)
+                                                        "$startDate - $endDate".uppercase()
+                                                }
+
+                                        Text(
+                                                text = dateText,
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = Color(0xFF94A3B8), // Slate 400
+                                                letterSpacing = 1.sp
+                                        )
+                                }
+                                Icon(
+                                        imageVector = Icons.Filled.KeyboardArrowRight,
+                                        contentDescription = "Ver más",
+                                        tint = Color(0xFF94A3B8)
+                                )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         Row(
                                 modifier = Modifier.fillMaxWidth(),
