@@ -25,12 +25,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
@@ -48,7 +49,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -128,6 +128,7 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
                         modifier =
                                 Modifier.fillMaxSize()
                                         .padding(innerPadding)
+                                        .verticalScroll(rememberScrollState())
                                         .padding(horizontal = 24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -161,13 +162,14 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                                text ="¡Te daremos un empujoncito amigable para registrar tu ánimo cada día!",
+                                text =
+                                        "¡Te daremos un empujoncito amigable para registrar tu ánimo cada día!",
                                 fontSize = 16.sp,
                                 color = Color(0xFF509573),
                                 textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         // Wheel Picker
                         Box(modifier = Modifier.fillMaxWidth().height(240.dp)) {
@@ -395,7 +397,7 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
                                 )
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Toggle Switch
                         Surface(
@@ -487,18 +489,15 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
                                 },
                                 modifier =
                                         Modifier.fillMaxWidth()
-                                                .height(56.dp)
                                                 .padding(bottom = 24.dp),
                                 shape = RoundedCornerShape(16.dp),
-                                colors =
-                                        ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF0E1B14)
-                                        )
+                                colors = ButtonDefaults.buttonColors(containerColor = SensuGreen)
                         ) {
                                 Text(
                                         text = "Guardar Recordatorio",
                                         fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0E1B14)
                                 )
                         }
                 }
@@ -507,88 +506,83 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
 
 @Composable
 fun WheelPicker(
-    range: IntRange,
-    initialValue: Int,
-    onValueChange: (Int) -> Unit,
-    format: (Int) -> String = { it.toString() }
+        range: IntRange,
+        initialValue: Int,
+        onValueChange: (Int) -> Unit,
+        format: (Int) -> String = { it.toString() }
 ) {
-    val itemHeight = 64.dp
-    val itemCount = range.count()
+        val itemHeight = 64.dp
+        val itemCount = range.count()
 
-    // 1. Calculamos el índice inicial para que esté "infinitamente" en el medio
-    val firstIndex = remember {
-        val mid = Int.MAX_VALUE / 2
-        mid - (mid % itemCount) + (initialValue - range.first)
-    }
-
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = firstIndex)
-    val snapBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-
-    // 2. Detectar el valor central de forma eficiente
-    val currentCenteredValue by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            if (visibleItems.isEmpty()) initialValue
-            else {
-                // El ítem en el centro es el que está más cerca del medio del viewport
-                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
-                val centerItem = visibleItems.minByOrNull {
-                    kotlin.math.abs((it.offset + it.size / 2) - viewportCenter)
-                }
-                centerItem?.let { range.first + (it.index % itemCount) } ?: initialValue
-            }
-        }
-    }
-
-    // Notificar al padre solo cuando el valor cambie
-    LaunchedEffect(currentCenteredValue) {
-        onValueChange(currentCenteredValue)
-    }
-
-    // 3. Usamos BoxWithConstraints para centrar dinámicamente
-    BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        val halfHeight = maxHeight / 2
-
-        LazyColumn(
-            state = listState,
-            flingBehavior = snapBehavior,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize(),
-            // El padding vertical es la mitad del alto total menos la mitad del alto del ítem
-            contentPadding = PaddingValues(vertical = halfHeight - (itemHeight / 2))
-        ) {
-            items(count = Int.MAX_VALUE) { index ->
-                val value = range.first + (index % itemCount)
-                val isSelected = value == currentCenteredValue
-
-                Box(
-                    modifier = Modifier
-                        .height(itemHeight)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = format(value),
-                        fontSize = if (isSelected) 32.sp else 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isSelected) Color(0xFF0E1B14) else Color(0xFFAFD4C2).copy(alpha = 0.4f),
-                        modifier = Modifier.scale(if (isSelected) 1.2f else 1f)
-                    )
-                }
-            }
+        // 1. Calculamos el índice inicial para que esté "infinitamente" en el medio
+        val firstIndex = remember {
+                val mid = Int.MAX_VALUE / 2
+                mid - (mid % itemCount) + (initialValue - range.first)
         }
 
-    }
-}
+        val listState = rememberLazyListState(initialFirstVisibleItemIndex = firstIndex)
+        val snapBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
-// Helper for clickable without ripple/indication
-fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
-        this.clickable(
-                indication = null,
-                interactionSource =
-                        remember {
-                                androidx.compose.foundation.interaction.MutableInteractionSource()
+        // 2. Detectar el valor central de forma eficiente
+        val currentCenteredValue by remember {
+                derivedStateOf {
+                        val layoutInfo = listState.layoutInfo
+                        val visibleItems = layoutInfo.visibleItemsInfo
+                        if (visibleItems.isEmpty()) initialValue
+                        else {
+                                // El ítem en el centro es el que está más cerca del medio del
+                                // viewport
+                                val viewportCenter =
+                                        (layoutInfo.viewportStartOffset +
+                                                layoutInfo.viewportEndOffset) / 2
+                                val centerItem =
+                                        visibleItems.minByOrNull {
+                                                kotlin.math.abs(
+                                                        (it.offset + it.size / 2) - viewportCenter
+                                                )
+                                        }
+                                centerItem?.let { range.first + (it.index % itemCount) }
+                                        ?: initialValue
                         }
-        ) { onClick() }
+                }
+        }
+
+        // Notificar al padre solo cuando el valor cambie
+        LaunchedEffect(currentCenteredValue) { onValueChange(currentCenteredValue) }
+
+        // 3. Usamos BoxWithConstraints para centrar dinámicamente
+        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                val halfHeight = maxHeight / 2
+
+                LazyColumn(
+                        state = listState,
+                        flingBehavior = snapBehavior,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize(),
+                        // El padding vertical es la mitad del alto total menos la mitad del alto
+                        // del ítem
+                        contentPadding = PaddingValues(vertical = halfHeight - (itemHeight / 2))
+                ) {
+                        items(count = Int.MAX_VALUE) { index ->
+                                val value = range.first + (index % itemCount)
+                                val isSelected = value == currentCenteredValue
+
+                                Box(
+                                        modifier = Modifier.height(itemHeight).fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                ) {
+                                        Text(
+                                                text = format(value),
+                                                fontSize = if (isSelected) 32.sp else 24.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color =
+                                                        if (isSelected) Color(0xFF0E1B14)
+                                                        else Color(0xFFAFD4C2).copy(alpha = 0.4f),
+                                                modifier =
+                                                        Modifier.scale(if (isSelected) 1.2f else 1f)
+                                        )
+                                }
+                        }
+                }
+        }
 }
