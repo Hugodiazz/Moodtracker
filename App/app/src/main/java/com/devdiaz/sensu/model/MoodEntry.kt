@@ -12,5 +12,6 @@ data class MoodEntry(
         val rating: MoodRating,
         val emotion: MoodEmotion,
         val timestamp: Long = System.currentTimeMillis(),
-        val dateString: String
+        val dateString: String,
+        val note: String? = null
 )

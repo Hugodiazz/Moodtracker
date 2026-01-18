@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,20 +84,46 @@ fun EmotionSelectionScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.padding(top = 40.dp)
                         ) {
-                                Surface(
-                                        shape = CircleShape,
-                                        shadowElevation = 2.dp,
-                                        color = Color.White.copy(alpha = 0.8f),
-                                        modifier = Modifier.size(56.dp)
+                                Box(
+                                        modifier =
+                                                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                                        contentAlignment = Alignment.Center
                                 ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                                Text(
-                                                        text = "👀",
-                                                        fontSize = 28.sp
-                                                ) // Fallback icon instead of material symbol for
-                                                // now
+                                        // Back Button (Top Left)
+                                        Surface(
+                                                shape = CircleShape,
+                                                shadowElevation = 2.dp,
+                                                color = Color.White,
+                                                modifier =
+                                                        Modifier.align(Alignment.CenterStart)
+                                                                .size(40.dp)
+                                                                .clip(CircleShape)
+                                                                .clickable { onBack() }
+                                        ) {
+                                                Box(contentAlignment = Alignment.Center) {
+                                                        Icon(
+                                                                imageVector =
+                                                                        Icons.Rounded.ArrowBack,
+                                                                contentDescription = "Back",
+                                                                tint = Color(0xFF94A3B8),
+                                                                modifier = Modifier.size(20.dp)
+                                                        )
+                                                }
+                                        }
+
+                                        // Eye Icon (Centered)
+                                        Surface(
+                                                shape = CircleShape,
+                                                shadowElevation = 2.dp,
+                                                color = Color.White.copy(alpha = 0.8f),
+                                                modifier = Modifier.size(56.dp)
+                                        ) {
+                                                Box(contentAlignment = Alignment.Center) {
+                                                        Text(text = "👀", fontSize = 28.sp)
+                                                }
                                         }
                                 }
+
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Text(
                                         text = "¿Qué emoción\nsientes?",
@@ -148,13 +176,7 @@ fun EmotionSelectionScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.padding(bottom = 24.dp)
                         ) {
-                                TextButton(onClick = onBack) {
-                                        Text(
-                                                text = "Regresar",
-                                                color = Color(0xFF64748B),
-                                                fontWeight = FontWeight.SemiBold
-                                        )
-                                }
+                                // Back button removed from here
 
                                 Spacer(modifier = Modifier.height(8.dp))
 

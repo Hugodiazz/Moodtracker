@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.devdiaz.sensu.ui.MoodCheckInScreen
 import com.devdiaz.sensu.ui.dashboard.MoodDashboardScreen
+import com.devdiaz.sensu.ui.history.HistoryScreen
 import com.devdiaz.sensu.ui.settings.ReminderSettingsScreen
 import com.devdiaz.sensu.ui.streak.StreakCelebrationScreen
 
@@ -37,10 +38,17 @@ class MainActivity : ComponentActivity() {
                         composable("dashboard") {
                             MoodDashboardScreen(
                                 modifier = Modifier.padding(innerPadding),
-                                onNavigateToScan = { navController.navigate("scan") },
+                                onNavigateToScan = { navController.navigate("scan")},
                                 onNavigateToReminders = {
-                                    navController.navigate("reminder_settings")
-                                }
+                                    navController.navigate("reminder_settings") },
+                                onNavigateToHistory = { navController.navigate("history") }
+                            )
+                        }
+
+                        composable("history") {
+                            HistoryScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onBack = { navController.popBackStack() }
                             )
                         }
 

@@ -7,7 +7,7 @@ import com.devdiaz.sensu.mapper.MoodTypeConverters
 import com.devdiaz.sensu.model.MoodEntry
 import com.devdiaz.sensu.model.UserStats
 
-@Database(entities = [MoodEntry::class, UserStats::class], version = 2, exportSchema = false)
+@Database(entities = [MoodEntry::class, UserStats::class], version = 3, exportSchema = false)
 @TypeConverters(MoodTypeConverters::class)
 abstract class SensuDatabase : RoomDatabase() {
     abstract fun moodEntryDao(): MoodEntryDao

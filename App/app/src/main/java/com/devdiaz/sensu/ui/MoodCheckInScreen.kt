@@ -55,7 +55,7 @@ fun MoodCheckInScreen(
                 targetState = uiState.currentStep,
                 label = "MoodCheckInFlow",
                 transitionSpec = {
-                        if (targetState == MoodCheckInStep.EmotionSelection) {
+                        if (targetState.ordinal > initialState.ordinal) {
                                 slideInHorizontally { it } + fadeIn() togetherWith
                                         slideOutHorizontally { -it } + fadeOut()
                         } else {
@@ -81,6 +81,15 @@ fun MoodCheckInScreen(
                                                 // Optional: onNavigateHome() if we want to leave
                                                 // screen after save
                                         }
+                                )
+                        }
+                        MoodCheckInStep.NoteInput -> {
+                                NoteInputScreen(
+                                        note = uiState.note,
+                                        onNoteChanged = viewModel::onNoteChanged,
+                                        onSave = viewModel::onSaveEntry,
+                                        onSkip = viewModel::onSaveEntry,
+                                        onBack = viewModel::onBackFromNote
                                 )
                         }
                 }

@@ -68,6 +68,7 @@ fun MoodDashboardScreen(
         modifier: Modifier = Modifier,
         onNavigateToScan: () -> Unit,
         onNavigateToReminders: () -> Unit,
+        onNavigateToHistory: () -> Unit,
         viewModel: MoodDashboardViewModel = hiltViewModel(),
 ) {
         val uiState by viewModel.uiState.collectAsState()
@@ -111,7 +112,8 @@ fun MoodDashboardScreen(
                         EmotionalCalendarCard(
                                 selectedTimeFilter = uiState.selectedTimeFilter,
                                 isDarkTheme = isDarkTheme,
-                                recentMoods = uiState.recentMoods
+                                recentMoods = uiState.recentMoods,
+                                onViewMore = onNavigateToHistory
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -172,65 +174,73 @@ fun DashboardHeader(
 
                 // Streak Badge & Notifications
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Notification Bell
-                    Surface(
-                        shape = CircleShape,
-                        color = if (isDarkTheme) SensuCardDark else Color.White,
-                        shadowElevation = 2.dp,
-                        modifier = Modifier.size(40.dp).clickable(onClick = onNavigateToReminders)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "Reminders",
-                                tint = if (isDarkTheme) Color.White else Color(0xFF334155),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    // Streak Badge
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = if (isDarkTheme) SensuCardDark else Color.White,
-                        shadowElevation = 4.dp, // soft shadow approximation
-                        border =
-                                androidx.compose.foundation.BorderStroke(
-                                        1.dp,
-                                        if (isDarkTheme) Color.White.copy(alpha = 0.05f)
-                                        else Color(0xFFF1F5F9)
-                                )
-                    ) {
-                        Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        // Notification Bell
+                        Surface(
+                                shape = CircleShape,
+                                color = if (isDarkTheme) SensuCardDark else Color.White,
+                                shadowElevation = 2.dp,
+                                modifier =
+                                        Modifier.size(40.dp)
+                                                .clickable(onClick = onNavigateToReminders)
                         ) {
-                                Icon(
-                                        painter =
-                                                painterResource(
-                                                        id =
-                                                                if (isStreakActive)
-                                                                        R.drawable.streak_on
-                                                                else R.drawable.streak_off
-                                                ),
-                                        contentDescription = null,
-                                        tint = Color.Unspecified,
-                                        modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                        text = streak.toString(),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color =
-                                                if (isDarkTheme) Color(0xFFE2E8F0)
-                                                else Color(0xFF334155)
-                                )
+                                Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                                imageVector = Icons.Default.Notifications,
+                                                contentDescription = "Reminders",
+                                                tint =
+                                                        if (isDarkTheme) Color.White
+                                                        else Color(0xFF334155),
+                                                modifier = Modifier.size(20.dp)
+                                        )
+                                }
                         }
-                    }
+
+                        // Streak Badge
+                        Surface(
+                                shape = RoundedCornerShape(50),
+                                color = if (isDarkTheme) SensuCardDark else Color.White,
+                                shadowElevation = 4.dp, // soft shadow approximation
+                                border =
+                                        androidx.compose.foundation.BorderStroke(
+                                                1.dp,
+                                                if (isDarkTheme) Color.White.copy(alpha = 0.05f)
+                                                else Color(0xFFF1F5F9)
+                                        )
+                        ) {
+                                Row(
+                                        modifier =
+                                                Modifier.padding(
+                                                        horizontal = 14.dp,
+                                                        vertical = 6.dp
+                                                ),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                        Icon(
+                                                painter =
+                                                        painterResource(
+                                                                id =
+                                                                        if (isStreakActive)
+                                                                                R.drawable.streak_on
+                                                                        else R.drawable.streak_off
+                                                        ),
+                                                contentDescription = null,
+                                                tint = Color.Unspecified,
+                                                modifier = Modifier.size(20.dp)
+                                        )
+                                        Text(
+                                                text = streak.toString(),
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color =
+                                                        if (isDarkTheme) Color(0xFFE2E8F0)
+                                                        else Color(0xFF334155)
+                                        )
+                                }
+                        }
                 }
         }
 }
@@ -287,7 +297,8 @@ fun TimeFilterSelector(
 fun EmotionalCalendarCard(
         selectedTimeFilter: TimeFilter,
         isDarkTheme: Boolean,
-        recentMoods: List<MoodEntry>
+        recentMoods: List<MoodEntry>,
+        onViewMore: () -> Unit
 ) {
 
         val cardBg = if (isDarkTheme) SensuCardDark else SensuCardLight
@@ -358,7 +369,8 @@ fun EmotionalCalendarCard(
                                 Icon(
                                         imageVector = Icons.Filled.KeyboardArrowRight,
                                         contentDescription = "Ver más",
-                                        tint = Color(0xFF94A3B8)
+                                        tint = Color(0xFF94A3B8),
+                                        modifier = Modifier.clickable(onClick = onViewMore)
                                 )
                         }
 

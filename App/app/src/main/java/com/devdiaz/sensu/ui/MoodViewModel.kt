@@ -42,7 +42,13 @@ class MoodViewModel @Inject constructor(private val moodRepository: MoodReposito
         }
 
         fun onEmotionSelected(emotion: MoodEmotion) {
-                _uiState.update { it.copy(selectedEmotion = emotion) }
+                _uiState.update {
+                        it.copy(selectedEmotion = emotion, currentStep = MoodCheckInStep.NoteInput)
+                }
+        }
+
+        fun onNoteChanged(note: String) {
+                _uiState.update { it.copy(note = note) }
         }
 
         fun onBackToMood() {
@@ -55,10 +61,15 @@ class MoodViewModel @Inject constructor(private val moodRepository: MoodReposito
                 }
         }
 
+        fun onBackFromNote() {
+                _uiState.update { it.copy(currentStep = MoodCheckInStep.EmotionSelection) }
+        }
+
         fun onSaveEntry() {
                 val currentState = uiState.value
                 val rating = currentState.selectedMood ?: return
                 val emotion = currentState.selectedEmotion ?: return
+                val note = currentState.note
 
                 viewModelScope.launch {
                         // Check previous stats to decide on celebration
@@ -67,7 +78,12 @@ class MoodViewModel @Inject constructor(private val moodRepository: MoodReposito
                         val alreadyLoggedToday = oldStats?.lastLogDate == today
 
                         val entry =
-                                MoodEntry(rating = rating, emotion = emotion, dateString = today)
+                                MoodEntry(
+                                        rating = rating,
+                                        emotion = emotion,
+                                        note = note,
+                                        dateString = today
+                                )
                         moodRepository.insertMoodEntry(entry)
 
                         // Reset state
@@ -75,6 +91,7 @@ class MoodViewModel @Inject constructor(private val moodRepository: MoodReposito
                                 it.copy(
                                         selectedMood = null,
                                         selectedEmotion = null,
+                                        note = "",
                                         currentStep = MoodCheckInStep.MoodSelection
                                 )
                         }
@@ -98,10 +115,12 @@ data class MoodUiState(
         val currentStep: MoodCheckInStep = MoodCheckInStep.MoodSelection,
         val selectedMood: MoodRating? = null,
         val selectedEmotion: MoodEmotion? = null,
+        val note: String = "",
         val isLoading: Boolean = false
 )
 
 enum class MoodCheckInStep {
         MoodSelection,
-        EmotionSelection
+        EmotionSelection,
+        NoteInput
 }
