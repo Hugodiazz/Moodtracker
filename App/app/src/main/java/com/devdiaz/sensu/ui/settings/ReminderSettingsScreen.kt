@@ -66,7 +66,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.devdiaz.sensu.ui.theme.SensuGreen
 
 @Composable
-fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hiltViewModel()) {
+fun ReminderSettingsScreen(
+        modifier: Modifier,
+        onBack: () -> Unit, viewModel: ReminderViewModel = hiltViewModel()
+){
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
 
@@ -94,8 +97,8 @@ fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: ReminderViewModel = hi
                 topBar = {
                         Row(
                                 modifier =
-                                        Modifier.fillMaxWidth()
-                                                .padding(horizontal = 24.dp, vertical = 24.dp),
+                                        modifier.fillMaxWidth()
+                                                .padding(horizontal = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
                                 Surface(

@@ -65,9 +65,10 @@ import java.util.Calendar
 
 @Composable
 fun MoodDashboardScreen(
+        modifier: Modifier = Modifier,
         onNavigateToScan: () -> Unit,
         onNavigateToReminders: () -> Unit,
-        viewModel: MoodDashboardViewModel = hiltViewModel()
+        viewModel: MoodDashboardViewModel = hiltViewModel(),
 ) {
         val uiState by viewModel.uiState.collectAsState()
         val isDarkTheme = false // TODO: Get from system/settings
@@ -81,7 +82,7 @@ fun MoodDashboardScreen(
         ) { _ ->
                 Column(
                         modifier =
-                                Modifier.fillMaxSize()
+                                modifier.fillMaxSize()
                                         .verticalScroll(rememberScrollState())
                                         .padding(horizontal = 24.dp)
                 ) {

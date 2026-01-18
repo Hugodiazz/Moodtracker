@@ -7,13 +7,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import com.devdiaz.sensu.ui.theme.SensuTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.devdiaz.sensu.ui.MoodCheckInScreen
+import com.devdiaz.sensu.ui.dashboard.MoodDashboardScreen
+import com.devdiaz.sensu.ui.settings.ReminderSettingsScreen
+import com.devdiaz.sensu.ui.streak.StreakCelebrationScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -23,23 +28,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             SensuTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navController = androidx.navigation.compose.rememberNavController()
-                    androidx.navigation.compose.NavHost(
+                    val navController = rememberNavController()
+                    NavHost(
                             navController = navController,
                             startDestination = "dashboard",
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding()
                     ) {
                         composable("dashboard") {
-                            com.devdiaz.sensu.ui.dashboard.MoodDashboardScreen(
-                                    onNavigateToScan = { navController.navigate("scan") },
-                                    onNavigateToReminders = {
-                                        navController.navigate("reminder_settings")
-                                    }
+                            MoodDashboardScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onNavigateToScan = { navController.navigate("scan") },
+                                onNavigateToReminders = {
+                                    navController.navigate("reminder_settings")
+                                }
                             )
                         }
 
                         composable("scan") {
-                            com.devdiaz.sensu.ui.MoodCheckInScreen(
+                            MoodCheckInScreen(
                                     onNavigateHome = { navController.popBackStack() },
                                     onNavigateToStreak = { streak ->
                                         navController.navigate("streak_celebration/$streak") {
@@ -52,13 +58,11 @@ class MainActivity : ComponentActivity() {
                                 "streak_celebration/{streak}",
                                 arguments =
                                         listOf(
-                                                androidx.navigation.navArgument("streak") {
-                                                    type = androidx.navigation.NavType.IntType
-                                                }
+                                            navArgument("streak") { type = NavType.IntType }
                                         )
                         ) { backStackEntry ->
                             val streak = backStackEntry.arguments?.getInt("streak") ?: 1
-                            com.devdiaz.sensu.ui.streak.StreakCelebrationScreen(
+                            StreakCelebrationScreen(
                                     streakDays = streak,
                                     onContinue = { navController.popBackStack() },
                                     onDismiss = { navController.popBackStack() }
@@ -66,8 +70,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("reminder_settings") {
-                            com.devdiaz.sensu.ui.settings.ReminderSettingsScreen(
-                                    onBack = { navController.popBackStack() }
+                            ReminderSettingsScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onBack = { navController.popBackStack() }
                             )
                         }
                     }
@@ -75,15 +80,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(text = "Hello $name!", modifier = modifier)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SensuTheme { Greeting("Android") }
 }
